@@ -1,8 +1,8 @@
-# Code style
+# VanillaJS code style
 
 ## Naming
 
-### Things that contains booleans
+### Things that contain booleans
 
 If 
 * your variable contains `true`/`false` 
@@ -14,10 +14,10 @@ Examples:
 
 ```javascript
 // BAD
-const stringContainsOnlyNumbers = /^\d+$/.test('123');
+const stringContainsOnlyNumbers = value => /^\d+$/.test(String(value));
 
 // GOOD
-const isDigitsOnly = /^\d+$/.test('123');
+const isDigitsOnly = value => /^\d+$/.test(String(value));
 ```
 
 ```javascript
@@ -101,8 +101,8 @@ const prevHolidaysLocation = 'London';
 ```
 
 ### Avoid short names without context
-When you write code that hasn't concrete context, prefer 
-names for variables which explains own destination
+When you write code that hasn't got a concrete context, prefer 
+names for variables which explain own destination
 
 ```javascript
 // BAD: too pithy
@@ -113,7 +113,7 @@ const registeredUsersQuantity = 10;
 ```
 
 
-### Function(method) name should begin from a verb
+### Function(method) name should begin with a verb
 
 ```javascript
 // BAD
@@ -125,7 +125,7 @@ const getUsersNames = array => array.map(({name}) => name);
 
 
 ### Lists and dictionaries names
-For lists of items prefer plural entity name:
+For lists of items prefer a plural entity name:
 
 ```javascript
 // BAD
@@ -135,7 +135,7 @@ const arrayOfUsers = [{name: 'John'}, {name: 'Jane'}];
 const users = [{name: 'John'}, {name: 'Jane'}]
 ```
 
-For dictionaries prefer plural entity name with key, which you use for access for value:
+For dictionaries prefer a plural entity name with key, which you use for access for value:
 
 ```javascript
 // BAD
@@ -150,3 +150,288 @@ const usersById = {
     U5821: {name: 'Jane'},
 };
 ```
+
+
+## Pure functions
+
+Prefer pure functions instead of impure when you can.
+
+Pure function is a function that:
+* has no side effects
+* has same output for same input
+
+```javascript
+// BAD: impure
+var a = 10;
+  
+function sum(b) {
+    return a + b;
+}
+  
+sum(10) // 20
+a = 20;
+  
+sum(10) // 30
+
+
+// GOOD: pure
+var a = 1000;
+  
+function sum(a, b) {
+    return a + b;
+}
+  
+sum(5, 15); // 20
+  
+a = 123123;
+  
+sum(5, 15) // 20
+```
+
+## Magic numbers
+
+Use obvious names for any numbers, that you may have in your programs.
+
+```javascript
+// BAD
+const getMessageByStatusCode = statusCode => ({
+    [404]: 'Sorry, but this page does not exists',
+    [403]: 'Sorry, but you don\'t have enough permissions to see this page',
+    [undefined]: 'Sorry, but something went wrong, please try again later' 
+});
+
+// GOOD
+// http-codes.js
+export const NOT_FOUND = 404;
+export const FORBIDDEN = 403;
+
+// example-utils.js
+import {NOT_FOUND, FORBIDDEN} from '/path/to/http-code.js';
+
+const getMessageByStatusCode = statusCode => ({
+    [NOT_FOUND]: 'Sorry, but this page does not exists',
+    [FORBIDDEN]: 'Sorry, but you don\'t have enough permissions to see this page',
+    [undefined]: 'Sorry, but something went wrong, please try again later' 
+});
+```
+
+It could look like some overhead, but most of your magic numbers could be needed in different parts of programs.
+
+```javascript
+// BAD
+if (user.age >= 18 && user.country === 'Russia') {
+    sellAlcohol(user);
+} else if (user.age >= 21 && user.country === 'USA') {
+    sellAlcohol(user);
+} else {
+    alert('You are too much young to buy alcohol');
+}
+
+// GOOD
+const LEGAL_AGE_IN_RUSSIA = 18;
+const LEGAL_AGE_IN_USA = 21;
+
+if (user.age >= LEGAL_AGE_IN_RUSSIA && user.country === 'Russia') {
+    sellAlcohol(user);
+} else if (user.age >= LEGAL_AGE_IN_USA && user.country === 'USA') {
+    sellAlcohol(user);
+} else {
+    alert('You are too much young to buy alcohol');
+}
+
+// or
+const LEGAL_AGE_IN_RUSSIA = 18;
+const LEGAL_AGE_IN_USA = 21;
+const legalAgeByCountry = ({
+    Russia: LEGAL_AGE_IN_RUSSIA,
+    USA: LEGAL_AGE_IN_USA
+})[user.country];
+
+if (user.age >= legalAgeByCountry) {
+    sellAlcohol(user);
+} else {
+    alert('You are too much young to buy alcohol');
+}
+```
+
+
+## Small patterns
+
+### If conditions
+
+#### Prefer result of expression when it is possible (when result of expression is `boolean`)
+```javascript
+// BAD
+let isMoreThanOneUserOnline;
+
+if (usersOnline.length > 1) {
+    isMoreThanOneUserOnline = true
+} else {
+    isMoreThanOneUserOnline = false;
+}
+
+
+// GOOD
+const isMoreThanOneUserOnline = usersOnline.length > 1;
+```
+
+```javascript
+// BAD
+function isEmptyArray(array) {
+    if (array.length === 0) {
+        return true;
+    } else {
+        return false;
+    }   
+}
+
+// GOOD
+const isEmptyArray = array => array.length === 0;
+```
+
+#### Reduce if/else to if, when you don't need one of condition parts actually
+
+```javascript
+// BAD
+if (count <= 10) {
+    // do nothing
+} else {
+    alert('Done!');
+}
+
+// GOOD
+if (count > 10) {
+    alert('Done!');
+}
+```
+
+```javascript
+// BAD
+if (blackListNames.includes(user.name)) {
+    // do nothing
+} else {
+    alert('You have not been found in blacklist. Cheers!');
+}
+
+// GOOD
+if (!blackListNames.includes(user.name)) {
+    alert('You have not been found in blacklist. Cheers!');
+}
+```
+
+> Attention: don't inverse expressions, when you will use both parts of condition
+
+```javascript
+// BAD
+if (!blackListNames.includes(user.name)) {
+    alert('You have not been found in blacklist. Cheers!');
+} else {
+    alert('You have been found in blacklist. You will be redirected!')
+}
+
+// GOOD
+if (blackListNames.includes(user.name)) {
+    alert('You have been found in blacklist. You will be redirected!')
+} else {
+    alert('You have not been found in blacklist. Cheers!');
+}
+```
+
+#### Decisions based on concrete values
+
+Use dictionaries, when you actually can map one value to another:
+
+```javascript
+// BAD
+let message = '';
+
+if (userName === 'Jane') {
+    message = 'I love you, Jane';
+} else if (userName === 'John') {
+    message = 'You owe me, man!';
+} else if (userName === 'James') {
+    message = 'Did you see Voldemort?';
+}
+
+// GOOD
+const messageByName = {
+    Jane: 'I love you, Jane',
+    John: 'You owe me, man!',
+    James: 'Did you see Voldemort?',
+    [undefined]: '',
+};
+const message = messageByName[user.name];
+```
+
+#### Early return
+
+Don't do things, that couldn't be done by condition:
+
+```javascript
+// GOOD
+function createUser(name, age) {
+    if (name.length === 0 || age <= 0) {
+        throw new Error('Cannot create user without `name` and `age`');
+    }
+    
+    return {
+        age,
+        name,
+    };
+}
+```
+
+> This pattern couldn't be applied everywhere, but sometimes when you use it, code looks better
+> because the pattern reduces code nesting. 
+
+> With this pattern you could prevent function call with wrong arguments
+
+
+## Single responsibility principle in functions: one function - one action
+
+Prefer to write clean and simple functions, that do one thing.
+
+```javascript
+// BAD
+const createDictOrPair = (key, value, isDict) => {
+    if (isDict) {
+        return {[key]: value};
+    }
+  
+    return [key, value];
+};
+
+
+// GOOD
+
+const createDict = (key, value) => ({[key]: value});
+  
+const createPair = (key, value) => [key, value];
+```
+
+> Almost every time when you see a boolean flag in arguments list, you possibly could split one function into two
+
+
+## Declarative code VS imperative code
+
+Prefer declarative code style to imperative. People write code for people, not for computers.
+So the cleaner and simpler code you write the easier it for support by other developers.
+
+If you should choose between `for` loop which implements `map` and `map` function itself - prefer `map`.
+
+```javascript
+// BAD
+const usersNames = [];
+
+for (let i = 0; i < users.length; i++) {
+    users.push(users[i].name);
+}
+
+
+// GOOD
+const usersNames = users.map(({name}) => name);
+```
+
+> Attention: this concept is not about optimizations. For algorithms optimizations you may use 
+>`for`, `while` and other imperative constructions.
+> BTW, FP also has approaches for optimizing aka transducers.
