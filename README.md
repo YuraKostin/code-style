@@ -151,6 +151,59 @@ const usersById = {
 };
 ```
 
+## Use 'get' word for function that returns value
+There are such many words that can be used when you get something from a function:
+* create
+* produce
+* build
+* make
+* compute
+* combine
+* calculate
+
+but in the end we are definitely getting some value back.
+
+So choose one word, that your team will use. It seems 'get' is the best variant.
+
+```javascript
+// BAD
+const produceEmptyObject = () => ({});
+const calculateAnnualIncome = data => {...};
+const combineStrings = (strings, glue) => strings.join(glue);
+
+// GOOD
+const getEmptyObject = () => ({});
+const getAnnualIncome = data => {...};
+const getConcatenatedStrings = (strings, glue) => strings.join(glue); // Savvy? =)
+```
+
+Obviously it is not a law, just recommendation, 
+because we have words which describe function destination much better.
+
+```javascript
+// BAD
+const getConcatenatedStrings = (strings, glue) => strings.join(glue);
+
+// GOOD
+const concatStrings = (strings, glue) => strings.join(glue);
+const concatArrays = arrays => arrays.reduce((acc, array) => acc.concat(array), []);
+
+// Or just multy type concat
+const concat = (arg1, arg2...) => {...};
+```
+
+
+## Constants
+Use UPPER_SNAKE_CASE for constants
+```javascript
+// BAD
+const daysInAWeek = 7;
+const someConstantValue = 12391;
+
+// GOOD
+const DAYS_IN_A_WEEK = 7;
+const SOME_CONSTANT_VALUE = 12391;
+```
 
 ## Pure functions
 
@@ -187,6 +240,7 @@ a = 123123;
   
 sum(5, 15) // 20
 ```
+
 
 ## Magic numbers
 
