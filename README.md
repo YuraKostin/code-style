@@ -163,7 +163,7 @@ There are such many words that can be used when you get something from a functio
 
 but in the end we are definitely getting some value back.
 
-So choose one word, that your team will use. It seems 'get' is the best variant.
+So choose one word, that your team will use. It seems 'get' is the best option.
 
 ```javascript
 // BAD
