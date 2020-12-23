@@ -458,9 +458,9 @@ const createDictOrPair = (key, value, isDict) => {
 
 // GOOD
 
-const createDict = (key, value) => ({[key]: value});
+const dictOf = (key, value) => ({[key]: value});
   
-const createPair = (key, value) => [key, value];
+const pairOf = (key, value) => [key, value];
 ```
 
 > Almost every time when you see a boolean flag in arguments list, you possibly could split one function into two
