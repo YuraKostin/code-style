@@ -466,7 +466,7 @@ const pairOf = (key, value) => [key, value];
 > Almost every time when you see a boolean flag in arguments list, you possibly could split one function into two
 
 
-## Declarative code VS imperative code
+## Imperative code vs Declarative code
 
 Prefer declarative code style to imperative. People write code for people, not for computers.
 So the cleaner and simpler code you write the easier it for support by other developers.
@@ -474,6 +474,7 @@ So the cleaner and simpler code you write the easier it for support by other dev
 If you should choose between `for` loop which implements `map` and `map` function itself - prefer `map`.
 
 ```javascript
+// Imperative
 // BAD
 const usersNames = [];
 
@@ -482,6 +483,7 @@ for (let i = 0; i < users.length; i++) {
 }
 
 
+// Declarative
 // GOOD
 const usersNames = users.map(({name}) => name);
 ```
